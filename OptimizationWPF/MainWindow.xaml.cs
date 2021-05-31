@@ -53,30 +53,66 @@ namespace OptimizationWPF
                 double A1 = variables.First(v => v.VariableInfo.Name == "A1");
                 double A2 = variables.First(v => v.VariableInfo.Name == "A2");
 
-                return a * Pow(Pow(A1, 2) + B * A2 - u * V1, N) +
-                    a1 * Pow(B1 * A1 + Pow(A2, 2) - u1 * V2, N);
+                return 1000 * (a * Pow(Pow(A1, 2) + B * A2 - u * V1, N) +
+                    a1 * Pow(B1 * A1 + Pow(A2, 2) - u1 * V2, N));
             }
 
             int BestValue(IEnumerable<double> values)
             {
-                return values
-                    .Select((v, i) => new { Value = v, Index = i })
-                    .Min(vi => vi.Value);
+                double bestValue = values.ElementAt(0);
+                int bestValueIndex = 0;
+
+                for (int i = 0; i < values.Count(); i++)
+                {
+                    double value = values.ElementAt(i);
+
+                    if (value < bestValue)
+                    {
+                        bestValue = value;
+                        bestValueIndex = i;
+                    }
+                }
+
+                return bestValueIndex;
+            }
+
+            int WorstValue(IEnumerable<double> values)
+            {
+                double worstValue = values.ElementAt(0);
+                int worstValueIndex = 0;
+
+                for (int i = 0; i < values.Count(); i++)
+                {
+                    double value = values.ElementAt(i);
+
+                    if (value > worstValue)
+                    {
+                        worstValue = value;
+                        worstValueIndex = i;
+                    }
+                }
+
+                return worstValueIndex;
             }
 
             ITargetFunction targetFunction = new TargetFunction(
-                new Func<Variable[], bool>[] 
-                { 
-                    RestrictionOfSecondKind 
-                }, 
-                new VariableInfo[] 
-                { 
+                new Func<Variable[], bool>[]
+                {
+                RestrictionOfSecondKind
+                },
+                new VariableInfo[]
+                {
                     new VariableInfo { Name = "A1", ValueLowerBound = 1, ValueUpperBound = 10 },
                     new VariableInfo { Name = "A2", ValueLowerBound = 1, ValueUpperBound = 10 }
                 },
                 C,
-
+                BestValue,
+                WorstValue
                 );
+
+            ISolutionMethod methodOfBox = SolutionMethodsFactory.ConstructSolutionMethodOfBox();
+
+            var solution = methodOfBox.GetSolution(targetFunction, 0.1);
 
             pointStore.Points.AddRange(vx.Select(v => new SeriesPoint3D(v.x, v.y, v.z)));
 

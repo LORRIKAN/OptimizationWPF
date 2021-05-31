@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OptimizationWPF
 {
-    public static class SolutionsMethodFactory
+    public static class SolutionMethodsFactory
     {
         private static Tuple<Variable[], double> MethodOfBox(ITargetFunction targetFunction, double accuracy)
         {
@@ -50,64 +50,84 @@ namespace OptimizationWPF
 
             // Проход по ограничениям второго рода и популяция списка неверных точек
 
-            Points GetWrongPoints(Points pointsToCheck)
+            Points GetWrongPoints(Variable[][] coordinatesByPoints)
             {
-                var wrongPoints = new Variable[N][];
-                for (int i = 0; i < pointsToCheck.CoordinatesByPoints.GetLength(0); i++)
+                var wrongPointsLst = new List<Variable[]>();
+                for (int i = 0; i < coordinatesByPoints.GetLength(0); i++)
                 {
-                    Variable[] point = pointsToCheck.CoordinatesByPoints[i];
+                    Variable[] point = coordinatesByPoints[i];
 
-                    bool allChecksSucceeded = 
+                    bool allChecksSucceeded =
                         targetFunction.RestrictionsOfSecondKind.All(r => r(point));
 
                     if (allChecksSucceeded is false)
-                        wrongPoints[i] = point;
+                        wrongPointsLst.Add(point);
                 }
 
-                if (wrongPoints.All(p => p is null))
+                if (wrongPointsLst.All(p => p is null))
                     return null;
+
+                Variable[][] wrongPoints = wrongPointsLst.ToArray();
 
                 return new Points(Points.MatrixTranspose(wrongPoints), wrongPoints);
             }
 
             // Заведение списка точек, не отвечающих ограничениям второго рода
-            Points wrongStartingPoints = GetWrongPoints(x);
+            Points wrongStartingPoints = GetWrongPoints(x.CoordinatesByPoints);
 
             // Смещение точки
-            void PointOffset(Variable[] point, int PInternal)
+            void PointOffset(Variable[] point, Variable[][] correctPoints, int PInternal)
             {
-                for (int j = PInternal; j < N; j++)
+                for (int i = 0; i < n; i++)
                 {
-                    point[j].Value = 1 / 2 * (point[j] +
-                        (1 / PInternal) * point.Take(PInternal).Sum(v => v));
+                    point[i].Value = 1.0 / 2 * (point[i] +
+                        1.0 / PInternal * correctPoints[i].Sum(v => v));
                 }
             }
 
             while (!(wrongStartingPoints is null) &&
-                x.CoordinatesByVariables.GetLength(0) 
-                == wrongStartingPoints.CoordinatesByVariables.GetLength(0))
+                x.CoordinatesByPoints.GetLength(0)
+                == wrongStartingPoints.CoordinatesByPoints.GetLength(0))
             {
                 x = GenerateStartingPoints();
 
-                wrongStartingPoints = GetWrongPoints(x);
+                wrongStartingPoints = GetWrongPoints(x.CoordinatesByPoints);
             }
 
             if (!(wrongStartingPoints is null))
             {
                 int P = N - wrongStartingPoints.CoordinatesByPoints.GetLength(0);
 
-                for (int i = 0; i < n; i++)
-                {
-                    Variable[] wrongPoint = x[i];
+                var pointsToCheck = new Variable[1][];
 
-                    PointOffset(wrongPoint, P + 1);
+                Variable[][] correctCoordinatesByPoints = x.CoordinatesByPoints.Except(wrongStartingPoints.CoordinatesByPoints).ToArray();
+
+                var correctPoints = new Points(Points.MatrixTranspose(correctCoordinatesByPoints), correctCoordinatesByPoints);
+
+                for (int i = 0; i < wrongStartingPoints.CoordinatesByPoints.GetLength(0); i++)
+                {
+                    Variable[] wrongPoint = wrongStartingPoints.CoordinatesByPoints[i];
+
+                    pointsToCheck[0] = wrongPoint;
+
+                    do
+                    {
+                        PointOffset(wrongPoint, correctPoints.CoordinatesByVariables, P);
+                    } while (!(GetWrongPoints(pointsToCheck) is null));
+
+                    correctPoints.CoordinatesByPoints = correctPoints.CoordinatesByPoints.Concat(pointsToCheck).ToArray();
+
+                    for (int j = 0; j < n; j++)
+                    {
+                        correctPoints.CoordinatesByVariables[j] = correctPoints.CoordinatesByVariables[j].Concat(new List<Variable> { wrongPoint[j] })
+                            .ToArray();
+                    }
 
                     P++;
                 }
             }
 
-            // 2)
-            // Вычисление значений целевой функции Fj для всех N вершин Комплекса
+            // 2) Вычисление значений целевой функции Fj для всех N вершин Комплекса
             var funcResults = new Dictionary<Variable[], double>();
 
             foreach (Variable[] point in x.CoordinatesByPoints)
@@ -115,9 +135,10 @@ namespace OptimizationWPF
                 funcResults[point] = targetFunction.Func(point);
             }
 
+            // 3) Выбор наилучшего и наихудшего (с точки зрения типа экстремума) значения
+
             while (true)
             {
-                // 3) Выбор наилучшего и наихудшего (с точки зрения типа экстремума) значения 
                 int G = targetFunction.BestValue(funcResults.Values);
                 int D = targetFunction.WorstValue(funcResults.Values);
 
@@ -129,12 +150,12 @@ namespace OptimizationWPF
 
                 for (int i = 0; i < n; i++)
                 {
-                    C[i] = (1 / N - 1) * (x[i].Sum(v => v) - x[i][D]);
+                    C[i] = (Variable)(1.0 / (N - 1) * (x[i].Sum(v => v) - x[i][D]));
                 }
 
                 // 5) Проверка условия окончания поиска.
 
-                double B = (1 / (2 * n)) * C
+                double B = 1.0 / (2 * n) * C
                     .Select((c, i) => new { c, i })
                     .Sum(ci => Math.Abs(ci.c - x[ci.i][D]) + Math.Abs(ci.c - x[ci.i][G]));
 
@@ -146,44 +167,49 @@ namespace OptimizationWPF
                 for (int i = 0; i < n; i++)
                 {
                     newPoint[i] = new Variable[1];
-                    newPoint[i][0] = new Variable(x[i][0].VariableInfo, 
+                    newPoint[i][0] = new Variable(x[i][0].VariableInfo,
                         2.3 * C[i] - 1.3 * x[i][D]);
 
                     if (newPoint[i][0] < newPoint[i][0].VariableInfo.ValueLowerBound)
                         newPoint[i][0].Value = newPoint[i][0].VariableInfo.ValueLowerBound + accuracy;
                     else if (newPoint[i][0] > newPoint[i][0].VariableInfo.ValueUpperBound)
-                            newPoint[i][0].Value = newPoint[i][0].VariableInfo.ValueUpperBound - accuracy;
+                        newPoint[i][0].Value = newPoint[i][0].VariableInfo.ValueUpperBound - accuracy;
                 }
 
-                var xi0 = new Points(newPoint, Points.MatrixTranspose(newPoint));
+                var xO = new Points(newPoint, Points.MatrixTranspose(newPoint));
 
                 // 7) Проверка выполнения ограничений 2.го рода для новой точки.
                 while (true)
                 {
-                    Points wrongZeroPoint = GetWrongPoints(xi0);
+                    Points wrongZeroPoint = GetWrongPoints(xO.CoordinatesByPoints);
 
                     if (wrongZeroPoint is null)
                         break;
 
                     for (int i = 0; i < n; i++)
-                        newPoint[i][0].Value = (1 / 2) * (newPoint[i][0] + C[i]);
+                        newPoint[i][0].Value = 1.0 / 2 * (newPoint[i][0] + C[i]);
                 }
 
                 // 8) Вычисление значения целевой функции F0 в новой точке
-                double F0 = targetFunction.Func(xi0.CoordinatesByPoints[0]);
+                double F0 = targetFunction.Func(xO.CoordinatesByPoints[0]);
 
                 // 9) Нахождение новой вершины смещением xi0 на половину расстояния к лучшей из вершин комплекса с номером G
 
-                while (targetFunction.BestValue(new List<double>{ F0, Fd }) != 1)
+                while (targetFunction.BestValue(new List<double> { F0, Fd }) != 0)
                 {
                     for (int i = 0; i < n; i++)
-                        xi0[i][0].Value = (1 / 2) * (xi0[i][0] + x[i][G]);
+                        xO[i][0].Value = 1.0 / 2 * (xO[i][0] + x[i][G]);
 
-                    F0 = targetFunction.Func(xi0.CoordinatesByPoints[0]);
+                    F0 = targetFunction.Func(xO.CoordinatesByPoints[0]);
                 }
 
-                x.CoordinatesByPoints[0] = xi0.CoordinatesByPoints[0];
-                x.CoordinatesByVariables[0] = xi0.CoordinatesByVariables[0];
+                // 10) Фиксация точки Х0 и замена на F0 значения FD, если вычисленное в новой точке Х0 значение F0 лучше FD
+                for (int i = 0; i < n; i++)
+                {
+                    x[i][D].Value = xO[i][0].Value;
+                }
+
+                funcResults[x.CoordinatesByPoints[D]] = F0;
             }
         }
 

@@ -90,7 +90,7 @@
     <Compile Include="ITargetFunction.cs" />
     <Compile Include="Points.cs" />
     <Compile Include="SolutionMethod.cs" />
-    <Compile Include="SolutionsMethodFactory.cs" />
+    <Compile Include="SolutionMethodsFactory.cs" />
     <Compile Include="Table.cs">
       <SubType>Form</SubType>
     </Compile>
