@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OptimizationWPF
 {
@@ -18,7 +14,7 @@ namespace OptimizationWPF
 
         public double Value { get; set; }
 
-        public static implicit operator Variable(double value)
+        public static explicit operator Variable(double value)
         {
             return new Variable(new VariableInfo(), value);
         }

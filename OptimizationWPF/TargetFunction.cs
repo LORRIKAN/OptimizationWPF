@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OptimizationWPF
 {
     public class TargetFunction : ITargetFunction
     {
-        public TargetFunction(Func<Variable[], bool>[] restrictionsOfSecondKind, VariableInfo[] variablesInfo, 
-            Func<Variable[], double> func, Func<IEnumerable<double>, int> bestValue, 
+        public TargetFunction(Func<Variable[], bool>[] restrictionsOfSecondKind, VariableInfo[] variablesInfo,
+            Func<Variable[], double> func, Func<IEnumerable<double>, int> bestValue,
             Func<IEnumerable<double>, int> worstValue)
         {
             RestrictionsOfSecondKind = restrictionsOfSecondKind ?? throw new ArgumentNullException(nameof(restrictionsOfSecondKind));

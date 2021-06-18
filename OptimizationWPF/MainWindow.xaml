@@ -26,7 +26,7 @@
             </ComboBox>
         </GroupBox>
         <GroupBox Grid.Column="1" Header="Точность решения (от 0)" HorizontalAlignment="Left" Height="81" Margin="13,348,0,0" VerticalAlignment="Top" Width="354">
-            <TextBox x:Name="solutionAccuracy" HorizontalAlignment="Left" Height="23" Margin="0,10,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="330" AutomationProperties.Name="stepTB" AutomationProperties.HelpText="От 0 до 1"/>
+            <TextBox x:Name="solutionAccuracy" HorizontalAlignment="Left" Height="23" Margin="0,10,0,0" TextWrapping="Wrap" Text="0,1" VerticalAlignment="Top" Width="330" AutomationProperties.Name="stepTB" AutomationProperties.HelpText="От 0 до 1"/>
         </GroupBox>
         <Grid Grid.ColumnSpan="2" Margin="0,0,-0.4,0.4">
             <Grid.ColumnDefinitions>
@@ -40,9 +40,9 @@
             <Button x:Name="GoAdminBtn" Content="Войти Админинстратором" Grid.Column="2" HorizontalAlignment="Left" Margin="9.667,509,0,0" VerticalAlignment="Top" Width="359" Height="44" AutomationProperties.Name="GoAdminBtn" Click="GoAdminBtn_Click"/>
             <Button x:Name="calculateBtn" Content="Решить задачу" Grid.Column="2" HorizontalAlignment="Left" Margin="9.667,454,0,0" VerticalAlignment="Top" Width="358" Height="46" AutomationProperties.Name="calculateBtn" Click="calculateBtn_Click"/>
             <ComboBox x:Name="formulaTB" HorizontalAlignment="Left" Margin="16.6,42,0,0" SelectedIndex="0" VerticalAlignment="Top" Width="333" AutomationProperties.Name="formulaTB" Grid.Column="1" Height="22">
-                <ComboBoxItem Content="C=a*(A1^2+B*A2-u*V1)^N+a1*(B1*A1+A2^2-u1*V2)^N"/>
+                <ComboBoxItem Content="S=1000 * (a*(A1^2+B*A2-u*V1)^N+a1*(B1*A1+A2^2-u1*V2)^N)"/>
             </ComboBox>
-            <dxc:Chart3DControl x:Name="chart" HorizontalAlignment="Left" Margin="9.667,10,0,0" VerticalAlignment="Top" Height="426" Width="768" AutomationProperties.Name="chart" AggregateFunction="None" Grid.Column="2">
+            <dxc:Chart3DControl x:Name="chart3D" HorizontalAlignment="Left" Margin="9.667,10,0,0" VerticalAlignment="Top" Height="426" Width="768" AutomationProperties.Name="chart3D" AggregateFunction="None" Grid.Column="2">
                 <dxc:Chart3DControl.Palette>
                     <dxc:OfficePalette ColorCycleLength="{x:Null}"/>
                 </dxc:Chart3DControl.Palette>

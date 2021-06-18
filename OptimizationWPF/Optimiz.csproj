@@ -80,14 +80,11 @@
     <Compile Include="Authorize.Designer.cs">
       <DependentUpon>Authorize.cs</DependentUpon>
     </Compile>
-    <Compile Include="Chart2D.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Chart2D.Designer.cs">
-      <DependentUpon>Chart2D.cs</DependentUpon>
-    </Compile>
     <Compile Include="ISolutionMethod.cs" />
     <Compile Include="ITargetFunction.cs" />
+    <Compile Include="Plot2D.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Points.cs" />
     <Compile Include="SolutionMethod.cs" />
     <Compile Include="SolutionMethodsFactory.cs" />
@@ -133,8 +130,8 @@
     <EmbeddedResource Include="Authorize.resx">
       <DependentUpon>Authorize.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Chart2D.resx">
-      <DependentUpon>Chart2D.cs</DependentUpon>
+    <EmbeddedResource Include="Plot2D.resx">
+      <DependentUpon>Plot2D.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Licenses.licx" />
     <EmbeddedResource Include="Properties\Resources.resx">

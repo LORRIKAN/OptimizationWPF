@@ -29,9 +29,6 @@
         private void InitializeComponent()
         {
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.a1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.a2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.c = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -40,10 +37,6 @@
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToDeleteRows = false;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.a1,
-            this.a2,
-            this.c});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -53,30 +46,6 @@
             this.dataGridView1.RowTemplate.Height = 24;
             this.dataGridView1.Size = new System.Drawing.Size(900, 774);
             this.dataGridView1.TabIndex = 0;
-            // 
-            // a1
-            // 
-            this.a1.HeaderText = "A1";
-            this.a1.MinimumWidth = 6;
-            this.a1.Name = "a1";
-            this.a1.ReadOnly = true;
-            this.a1.Width = 200;
-            // 
-            // a2
-            // 
-            this.a2.HeaderText = "A2";
-            this.a2.MinimumWidth = 6;
-            this.a2.Name = "a2";
-            this.a2.ReadOnly = true;
-            this.a2.Width = 200;
-            // 
-            // c
-            // 
-            this.c.HeaderText = "C";
-            this.c.MinimumWidth = 6;
-            this.c.Name = "c";
-            this.c.ReadOnly = true;
-            this.c.Width = 200;
             // 
             // Table
             // 
@@ -95,8 +64,5 @@
         #endregion
 
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn a1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn a2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn c;
     }
 }
